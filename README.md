@@ -31,9 +31,11 @@
 | **行程表** | PDF（单页 A4，纯英文） | 7列表格，对齐真实过签格式，打印即递签 |
 | **预订链接** | HTML（中文版 + 英文版） | 航班/酒店/景点飞猪链接，一键复制，附推荐理由 |
 
-| 行程表 PDF（[下载](assets/demo_travel_plan.pdf)） | 预订链接 · 中文版 | 预订链接 · 英文版 |
-|:---:|:---:|:---:|
-| ![](assets/demo_travel_plan.png) | ![](assets/demo_booking_cn.png) | ![](assets/demo_booking_en.png) |
+<table><tr>
+<td valign="top"><strong>行程表 PDF</strong>（<a href="assets/demo_travel_plan.pdf">下载</a>）<br><img src="assets/demo_travel_plan.png" width="100%"></td>
+<td valign="top"><strong>预订链接 · 中文版</strong><br><img src="assets/demo_booking_cn.png" width="100%"></td>
+<td valign="top"><strong>预订链接 · 英文版</strong><br><img src="assets/demo_booking_en.png" width="100%"></td>
+</tr></table>
 
 ---
 

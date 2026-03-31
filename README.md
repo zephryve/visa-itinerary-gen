@@ -31,14 +31,17 @@
 | **行程表** | PDF（单页 A4，纯英文） | 7列表格，对齐真实过签格式，打印即递签 |
 | **预订链接** | HTML（中文版 + 英文版） | 航班/酒店/景点飞猪链接，一键复制，附推荐理由 |
 
-行程表示例（[下载 Demo PDF](assets/demo_travel_plan.pdf)）：
+### 行程表 PDF（[下载 Demo](assets/demo_travel_plan.pdf)）
 
-| Country | Day | Date | City | Touring Spots | Accommodation | Transportation |
-|---------|-----|------|------|---------------|---------------|----------------|
-| CHINA | 1 | 2026/04/27 (Mon) | Hangzhou→Milan | — | UNAHOTELS Scandinavia (Via G.B. Fauche 15) | Flight QR891: HGH→Doha→Milan |
-| ITALY | 2 | 2026/04/28 (Tue) | Milan | Duomo, Galleria V.E. II, Last Supper | UNAHOTELS Scandinavia | Public transport and walking |
-| ITALY | 3 | 2026/04/29 (Wed) | Milan→Venice | St. Mark's, Doge's Palace, Grand Canal | Hotel alla Vita Dorata (Venezia) | Train Milan→Venice |
-| ... | ... | ... | ... | ... | ... | ... |
+![行程表 Demo](assets/demo_travel_plan.png)
+
+### 预订链接 HTML — 中文版
+
+![预订链接中文版](assets/demo_booking_cn.png)
+
+### 预订链接 HTML — 英文版
+
+![预订链接英文版](assets/demo_booking_en.png)
 
 ---
 

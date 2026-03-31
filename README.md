@@ -3,7 +3,7 @@
 > 30秒生成领馆级签证行程计划书。真实航班+酒店+景点数据，零幻觉。
 
 > [!TIP]
-> **[📋 查看完整产品 PRD（含用户价值佐证、差异化分析、技术链路）→](https://zephryve.github.io/visa-itinerary-gen/)**
+> **[📋 查看完整产品 PRD →](https://zephryve.github.io/visa-itinerary-gen/)**
 
 ---
 

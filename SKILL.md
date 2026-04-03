@@ -47,21 +47,33 @@ Generate a consulate-grade visa itinerary document in 30 seconds. Real data from
 When this skill is activated, **first run these checks silently**:
 
 ```bash
-# 1. Check flyai-cli binary
+# 1. Check node (required by flyai-cli)
+which node > /dev/null 2>&1 || echo "MISSING: node"
+
+# 2. Check flyai-cli binary
 which flyai > /dev/null 2>&1 || echo "MISSING: flyai-cli"
 
-# 2. Check python3
+# 3. Check python3
 which python3 > /dev/null 2>&1 || echo "MISSING: python3"
 
-# 3. Check playwright (for PDF generation)
+# 4. Check playwright (for PDF generation)
 python3 -c "import playwright" 2>/dev/null || echo "MISSING: playwright"
 ```
 
 If anything is missing, **ask the user for permission** before installing. Do NOT install silently — always confirm first.
 
+- **node missing** → tell user: install Node.js from https://nodejs.org/ (cannot be auto-installed)
 - **flyai-cli missing** → ask user: "flyai-cli is not installed. It's a free CLI tool (no API key needed) for searching flights, hotels, and attractions on Fliggy. Shall I install it? (`npm i -g @fly-ai/flyai-cli`)" → if user agrees, run the install command
-- **python3 missing** → tell user: install Python 3 (cannot be auto-installed)
+- **python3 missing** → tell user: install Python 3 from https://python.org/ (cannot be auto-installed)
 - **playwright missing** → ask user: "playwright is not installed. It's needed for PDF generation. Shall I install it? (`pip3 install playwright && python3 -m playwright install chromium`)" → if user agrees, run the install commands
+
+After all dependencies are present, **verify flyai actually works**:
+
+```bash
+flyai fliggy-fast-search --query "test" > /dev/null 2>&1 && echo "flyai OK" || echo "flyai ERROR"
+```
+
+If flyai returns an error, warn the user but do not stop — it may still work for specific queries.
 
 Only proceed to Step 1 when all dependencies are confirmed present.
 
@@ -199,10 +211,17 @@ Generate a **full English** single-page travel plan table. This is the visa itin
 
 #### Generate PDF from the table
 
-After generating the Markdown table, write it as a temporary HTML file (Times New Roman, A4, black & white), then render to PDF using the included script:
+After generating the Markdown table, write it as a temporary HTML file (Times New Roman, A4, black & white), then render to PDF using the included script.
+
+First, locate this skill's install directory (the folder containing this SKILL.md), then run:
 
 ```bash
-python3 scripts/render_pdf.py --html /tmp/travel_plan.html --output My_Travel_Plan.pdf
+python3 <skill_dir>/scripts/render_pdf.py --html /tmp/travel_plan.html --output My_Travel_Plan.pdf
+```
+
+For example, if this skill is installed at `~/.claude/skills/visa-itinerary-gen/`, the command would be:
+```bash
+python3 ~/.claude/skills/visa-itinerary-gen/scripts/render_pdf.py --html /tmp/travel_plan.html --output My_Travel_Plan.pdf
 ```
 
 The script renders the HTML to a single-page A4 PDF via playwright chromium, then deletes the temporary HTML file. Only deliver the PDF to the user.

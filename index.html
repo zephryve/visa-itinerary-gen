@@ -345,7 +345,7 @@ tbody tr:hover { background: rgba(196, 90, 60, 0.03); }
         <tbody>
           <tr><td>1</td><td style="white-space:nowrap"><strong>用户卡在哪？</strong></td><td>行程计划书是签证材料中唯一需要从零创作的文档，3-5 小时手工查+排版。</td></tr>
           <tr><td>2</td><td style="white-space:nowrap"><strong>帮他做什么？</strong></td><td>用户说一句话，30秒生成领馆级行程表 + 飞猪预订链接。</td></tr>
-          <tr><td>3</td><td style="white-space:nowrap"><strong>输入/输出？</strong></td><td>输入：一句话说清目的地+日期+人数（如"4人4月底从杭州去意大利法国，5月4号回"）。输出：① 行程表 PDF（纯英文，单页 A4）② 预订链接 HTML（中英各一份，含推荐理由+复制按钮）。</td></tr>
+          <tr><td>3</td><td style="white-space:nowrap"><strong>输入/输出？</strong></td><td>输入：一句话说清目的地+日期+人数（如"4人4月底从杭州去意大利法国，5月4号回"）。输出：① 行程表 PDF + Markdown 源文件（纯英文，单页 A4）② 预订链接 HTML（中英各一份，含推荐理由+复制按钮）。</td></tr>
           <tr><td>4</td><td style="white-space:nowrap"><strong>失败怎么办？</strong></td><td>flyai 查不到时标注"需人工确认"，保证 80%+ 完整度。</td></tr>
         </tbody>
       </table>
@@ -461,7 +461,7 @@ tbody tr:hover { background: rgba(196, 90, 60, 0.03); }
     <p>自然语言：<code>"4个人4月27号从杭州去意大利和法国，5月4号回"</code></p>
 
     <h3>产物一：行程表 PDF</h3>
-    <p>单页 A4，纯英文，对齐真实过签行程单格式。无 Declaration、无费用汇总——签证官只看行程本身。同时提供 Markdown 源文件，方便用户微调后再生成 PDF。</p>
+    <p>单页 A4，纯英文，对齐真实过签行程单格式。无 Declaration、无费用汇总——签证官只看行程本身。同时提供 Markdown 源文件，微调后可重新生成 PDF。</p>
     <div class="table-wrap">
       <table>
         <thead><tr><th>Country</th><th>Day</th><th>Date</th><th>City</th><th>Touring Spots</th><th>Accommodation</th><th>Transportation</th></tr></thead>

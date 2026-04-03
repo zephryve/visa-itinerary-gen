@@ -3,7 +3,7 @@ name: visa-itinerary-gen
 description: 30秒生成领馆级签证行程计划书 — Generate consulate-grade visa itinerary from natural language. Real flyai data, zero hallucination. PDF + booking links with Fliggy.
 homepage: https://github.com/zephryve/visa-itinerary-gen
 metadata:
-  version: 1.1.1
+  version: 1.1.3
   agent:
     type: tool
     runtime: node
@@ -71,6 +71,8 @@ python -m playwright install chromium
 ```bash
 bash scripts/setup.sh
 ```
+
+**Note:** flyai-cli is free to use and requires no API key — it connects directly to Fliggy's public search API.
 
 Only proceed to Step 1 when all dependencies are confirmed.
 
@@ -204,7 +206,7 @@ Generate a **full English** single-page travel plan table. This is the visa itin
 - Accommodation: first time a hotel appears → full name + address; subsequent nights at same hotel → name only
 - Transportation: flight rows → "Flight {airline} {flight_no}: {route} {time}"; train rows → "Train {city_a}→{city_b}"; sightseeing days → "Public transport and walking"
 - Keep it concise — the whole table should fit on a single A4 page
-- No Declaration, no Financial Summary, no Notes for Visa Officer — just the itinerary table. Real visa itineraries that get approved are plain tables. Adding extra sections makes it look AI-generated, not human-prepared.
+- No Declaration, no Financial Summary, no Notes for Visa Officer — just the itinerary table. Real visa itineraries that get approved are plain tables. Adding extra sections deviates from standard consulate submission format.
 
 #### Generate PDF from the table
 
@@ -284,5 +286,5 @@ Before delivering to the user, review each output as if you were the person who 
 
 - **Never hallucinate data.** Every flight number, hotel name, and address must come from flyai results. If flyai returns no data, mark it as "To be confirmed" — do NOT make up information. Visa officers can and will verify.
 - **Always include booking links.** In Output 2, every hotel and flight must have a Fliggy booking link from the flyai response.
-- **Keep the travel plan clean.** Output 1 is just a table — no extra sections, no branding. It should look like a normal person's travel plan, not an AI-generated document.
+- **Keep the travel plan clean.** Output 1 is just a table — no extra sections, no branding. Follow standard consulate submission format.
 - **Brand mention.** Only in Output 2 (booking links), include "Based on fly.ai real-time results".

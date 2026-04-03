@@ -1,9 +1,9 @@
 ---
 name: visa-itinerary-gen
-description: Generate consulate-grade visa itinerary documents from a single natural language input. Calls flyai to get real flight, hotel, and attraction data, then outputs a single-page travel plan table (PDF) and booking links HTML (CN + EN) with copy buttons and recommendations. Every hotel and flight links to Fliggy.
+description: 30秒生成领馆级签证行程计划书 — Generate consulate-grade visa itinerary from natural language. Real flyai data, zero hallucination. PDF + booking links with Fliggy.
 homepage: https://github.com/zephryve/visa-itinerary-gen
 metadata:
-  version: 0.1.0
+  version: 1.1.0
   agent:
     type: tool
     runtime: node
@@ -29,6 +29,8 @@ metadata:
 ---
 
 # visa-itinerary-gen — Visa Itinerary Generator
+
+> **一句话说明：** 输入"4个人4月27号从杭州去意大利和法国，5月4号回"，30秒生成领馆级签证行程计划书（PDF）+ 飞猪预订链接。省 ¥30-110 代做费，省 3-5 小时手工排版。
 
 Generate a consulate-grade visa itinerary document in 30 seconds. Real data from flyai, zero hallucination.
 
@@ -65,9 +67,9 @@ pip install playwright
 python -m playwright install chromium
 ```
 
-**Or run the one-click setup script:**
+**Or run the one-click setup script** (from the skill's root directory):
 ```bash
-bash {baseDir}/scripts/setup.sh
+bash scripts/setup.sh
 ```
 
 Only proceed to Step 1 when all dependencies are confirmed.
@@ -75,8 +77,8 @@ Only proceed to Step 1 when all dependencies are confirmed.
 ## When to Use This Skill
 
 Activate when the user wants to:
-- Generate a travel itinerary for a visa application
-- Create a Schengen visa travel plan
+- Generate a travel itinerary for any visa application (Schengen, Japan, South Korea, Southeast Asia, etc.)
+- Create a travel plan document for consulate/embassy submission
 - Prepare visa application documents (specifically the itinerary)
 
 ## Input
@@ -112,21 +114,21 @@ Use this to calculate relative dates if the user says "next month" etc.
 
 ### Step 3: Call flyai — Flights
 
-Search for all flight segments:
+Search for all flight segments. Flight search works with both Chinese and English city names, but prefer Chinese for consistency.
 
 **International departure:**
 ```bash
-flyai search-flight --origin "{departure_city}" --destination "{first_city}" --dep-date "{start_date}" --sort-type 3
+flyai search-flight --origin "{出发城市}" --destination "{第一个目的城市}" --dep-date "{start_date}" --sort-type 3
 ```
 
 **Inter-city flights (if applicable):**
 ```bash
-flyai search-flight --origin "{city_a}" --destination "{city_b}" --dep-date "{date}" --sort-type 3
+flyai search-flight --origin "{城市A}" --destination "{城市B}" --dep-date "{date}" --sort-type 3
 ```
 
 **Return flight:**
 ```bash
-flyai search-flight --origin "{last_city}" --destination "{departure_city}" --dep-date "{end_date}" --sort-type 3
+flyai search-flight --origin "{最后一个城市}" --destination "{出发城市}" --dep-date "{end_date}" --sort-type 3
 ```
 
 From each result, extract: `marketingTransportName`, `marketingTransportNo`, `depDateTime`, `arrDateTime`, `depStationName`, `arrStationName`, `adultPrice`, `jumpUrl`.
@@ -135,15 +137,17 @@ From each result, extract: `marketingTransportName`, `marketingTransportNo`, `de
 
 ### Step 4: Call flyai — Hotels
 
-For each city in the itinerary, search hotels. **You MUST include dates for overseas cities** — without dates, overseas cities return empty.
+For each city in the itinerary, search hotels. **You MUST include dates for overseas cities** — without dates, overseas cities return wrong results from unrelated cities (not empty, but wrong data — more dangerous).
+
+**CRITICAL: Always use Chinese city names for hotel search.** English names cause flyai to fuzzy-match wrong cities (e.g., "Tokyo" → Cape Town, "Nice" → Dubai, "Osaka" → null). This is not a fallback — Chinese is the only reliable option for overseas cities.
 
 ```bash
-flyai search-hotels --dest-name "{city_name_in_english}" --check-in-date "{checkin}" --check-out-date "{checkout}" --sort rate_desc
+flyai search-hotels --dest-name "{城市中文名}" --check-in-date "{checkin}" --check-out-date "{checkout}" --sort rate_desc
 ```
 
 From each result, extract: `name`, `address`, `price`, `score`, `detailUrl`.
 
-**IMPORTANT: Verify the hotel is actually in the target city.** For smaller cities (e.g., Nice, Venice), flyai may return hotels from other locations due to fuzzy name matching. Check the `address` field — if it contains a different country or city, discard that result. If the English city name returns bad results, try the Chinese name (e.g., `--dest-name "尼斯"`).
+**Verify the hotel is actually in the target city.** Check the `address` field — if it contains a different country or city, discard that result.
 
 Pick the top-rated hotel for each city. If no valid results, mark "Hotel to be confirmed" in the itinerary.
 
@@ -151,17 +155,19 @@ Pick the top-rated hotel for each city. If no valid results, mark "Hotel to be c
 
 For each city, search top attractions. **You MUST use Chinese city names** — English names return empty results.
 
-```bash
-flyai search-poi --city-name "{city_name_in_chinese}"
-```
+**Universal rule: Regardless of user input language, translate ALL city names to Chinese before calling any flyai command (hotels, attractions, flights with non-Chinese city names).** Do not rely on a fixed mapping table — the agent is responsible for accurate translation.
 
-City name mapping: Milan→米兰, Venice→威尼斯, Florence→佛罗伦萨, Rome→罗马, Nice→尼斯, Paris→巴黎, Barcelona→巴塞罗那, Amsterdam→阿姆斯特丹, Prague→布拉格, Vienna→维也纳. For other cities, search the Chinese name first before calling search-poi.
+```bash
+flyai search-poi --city-name "{城市中文名}"
+```
 
 From results, extract: `name`, `address`, `freePoiStatus`, `ticketInfo.price`, `jumpUrl`.
 
 Select 2-4 attractions per city to fill the daily itinerary. Distribute realistically — no more than 3 major attractions per day.
 
 ### Step 6: Internal Logic
+
+**Only execute this step for multi-country Schengen trips.** For single-country trips or non-Schengen destinations (e.g., Japan, South Korea, Southeast Asia), skip this step entirely.
 
 **Schengen 90/180 Day Check:**
 - Count total days inside Schengen zone
@@ -222,7 +228,8 @@ with sync_playwright() as p:
 
 #### Output 2: Booking Links HTML (Chinese + English)
 
-Generate TWO HTML files using the templates in `templates/`:
+Generate TWO HTML files. **Reference the visual style, CSS, and HTML structure of `templates/` as design examples, but dynamically generate all content from flyai data.** The templates contain hardcoded demo data (Italy & France), not fillable placeholders — do NOT attempt find-and-replace. Instead, replicate the same layout and styling with real data.
+
 - `booking_links_cn.html` — Chinese version with Chinese hotel/attraction names and recommendations
 - `booking_links_en.html` — English version with English recommendations
 
@@ -234,11 +241,33 @@ Each HTML file contains three tables (Flights / Hotels / Attractions) with:
 
 Data to fill into templates:
 
-**Flights table:** route (CN/EN city names), airline + flight number, price per person, Fliggy `jumpUrl`
+**Flights table:** route (CN/EN city names), airline + specific flight number (e.g., "卡塔尔航空 QR871" / "Qatar Airways QR871"), price per person, Fliggy `jumpUrl`. **Flight numbers are mandatory** — extract `marketingTransportName` + `marketingTransportNo` from flyai results. Never omit the flight number or write only the airline name.
 
 **Hotels table:** city, hotel `name` (EN) / flyai Chinese name, `price`, `star` + `interestsPoi` as recommendation, Fliggy `detailUrl`
 
 **Attractions table:** city, attraction `name` (EN) / flyai Chinese name, `category` as recommendation, Fliggy `jumpUrl`
+
+### Step 8: Delivery Review
+
+Before delivering to the user, review each output as if you were the person who will submit it. The goal is to deliver something that can be used directly — not a draft that needs manual checking.
+
+**Review Output 1 (Travel Plan PDF) — the visa officer will read this:**
+- Every hotel address is in the correct city (not a different country or region)
+- Every flight row has a specific flight number + departure time (not just the airline name)
+- Each day's touring spots are only in that day's city (no mixing cities on transfer days)
+- Transfer day timing is realistic (early morning flight = no sightseeing that day)
+- Every piece of data (flight numbers, hotel names, touring spot names) must trace back to a flyai call. If a touring spot was not returned by flyai, it must be removed — use "Local exploration / neighborhood walk" instead. This skill's promise is zero hallucination from real data.
+
+**Review Output 2 (Booking Links HTML) — the user will use this to book:**
+- CN version: every flight has airline + flight number (e.g., "春秋航空 9C8515", not just "春秋航空")
+- EN version: every flight has airline + flight number (e.g., "Spring Airlines 9C8515")
+- Attraction categories/descriptions make sense (discard or replace obviously wrong labels like "山湖田园" for a city observation deck)
+- Every hotel and flight has a Fliggy link; if data exists but link is missing, note "请在飞猪搜索该航线"
+
+**When something fails review:**
+- Fix it if you can (re-search, substitute data, remove bad labels)
+- If unfixable (flyai has no data), mark it clearly in the output and tell the user what needs their attention
+- Default is: user receives a ready-to-use document, not a TODO list
 
 ## Error Handling
 

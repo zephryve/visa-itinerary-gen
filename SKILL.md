@@ -44,7 +44,7 @@ Generate a consulate-grade visa itinerary document in 30 seconds. Real data from
 
 ## Step 0: Dependency Check (MUST run before anything else)
 
-When this skill is activated, **first run these checks silently**. If any dependency is missing, tell the user what to install and stop — do NOT proceed with incomplete dependencies. Do NOT attempt to install system packages (no `npm i -g`, no `pip install`).
+When this skill is activated, **first run these checks silently**:
 
 ```bash
 # 1. Check flyai-cli binary
@@ -57,13 +57,11 @@ which python3 > /dev/null 2>&1 || echo "MISSING: python3"
 python3 -c "import playwright" 2>/dev/null || echo "MISSING: playwright"
 ```
 
-If anything is missing, tell the user which prerequisites are not met and **stop**:
+If anything is missing, **ask the user for permission** before installing. Do NOT install silently — always confirm first.
 
-- **flyai-cli missing** → tell user: `npm i -g @fly-ai/flyai-cli`
-- **python3 missing** → tell user: install Python 3
-- **playwright missing** → tell user: `pip3 install playwright && python3 -m playwright install chromium`
-
-**Note:** flyai-cli is free to use and requires no API key — it connects directly to Fliggy's public search API.
+- **flyai-cli missing** → ask user: "flyai-cli is not installed. It's a free CLI tool (no API key needed) for searching flights, hotels, and attractions on Fliggy. Shall I install it? (`npm i -g @fly-ai/flyai-cli`)" → if user agrees, run the install command
+- **python3 missing** → tell user: install Python 3 (cannot be auto-installed)
+- **playwright missing** → ask user: "playwright is not installed. It's needed for PDF generation. Shall I install it? (`pip3 install playwright && python3 -m playwright install chromium`)" → if user agrees, run the install commands
 
 Only proceed to Step 1 when all dependencies are confirmed present.
 

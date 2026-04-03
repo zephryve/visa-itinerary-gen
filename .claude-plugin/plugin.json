@@ -1,7 +1,7 @@
 {
   "name": "visa-itinerary-gen",
   "description": "Generate consulate-grade visa itinerary in 30 seconds. Real data from Fliggy, zero hallucination.",
-  "version": "1.1.3",
+  "version": "1.2.0",
   "author": {
     "name": "zephryve",
     "url": "https://github.com/zephryve"
@@ -22,9 +22,7 @@
   ],
   "dependencies": {
     "skills": ["flyai"],
-    "bins": ["node", "python3"],
-    "npm": ["@fly-ai/flyai-cli"],
-    "python": ["playwright"]
+    "bins": ["node", "python3", "flyai"]
   },
   "external_services": {
     "flyai": {
@@ -32,6 +30,5 @@
       "auth": "none",
       "note": "Free public API, no API key required"
     }
-  },
-  "setup": "scripts/setup.sh"
+  }
 }

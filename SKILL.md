@@ -3,7 +3,7 @@ name: visa-itinerary-gen
 description: 30秒生成领馆级签证行程计划书 — Generate consulate-grade visa itinerary from natural language. Real flyai data, zero hallucination. PDF + booking links with Fliggy.
 homepage: https://github.com/zephryve/visa-itinerary-gen
 metadata:
-  version: 1.1.3
+  version: 1.2.0
   agent:
     type: tool
     runtime: node
@@ -12,10 +12,18 @@ metadata:
   openclaw:
     emoji: "\U0001F4CB"
     priority: 80
+    install:
+      - kind: node
+        package: "@fly-ai/flyai-cli"
+        bins: [flyai]
+      - kind: uv
+        package: playwright
+        bins: [playwright]
     requires:
       bins:
         - node
         - python3
+        - flyai
       skills:
         - flyai
     intents:
@@ -36,10 +44,10 @@ Generate a consulate-grade visa itinerary document in 30 seconds. Real data from
 
 ## Step 0: Dependency Check (MUST run before anything else)
 
-When this skill is activated, **first run these checks silently**. If any dependency is missing, tell the user what to install and stop — do NOT proceed with incomplete dependencies.
+When this skill is activated, **first run these checks silently**. If any dependency is missing, tell the user what to install and stop — do NOT proceed with incomplete dependencies. Do NOT attempt to install system packages (no `npm i -g`, no `pip install`).
 
 ```bash
-# 1. Check flyai-cli
+# 1. Check flyai-cli binary
 which flyai > /dev/null 2>&1 || echo "MISSING: flyai-cli"
 
 # 2. Check python3
@@ -49,32 +57,15 @@ which python3 > /dev/null 2>&1 || echo "MISSING: python3"
 python3 -c "import playwright" 2>/dev/null || echo "MISSING: playwright"
 ```
 
-If anything is missing, show the user the appropriate install commands:
+If anything is missing, tell the user which prerequisites are not met and **stop**:
 
-**flyai-cli missing:**
-```bash
-# OpenClaw users
-clawhub install flyai
-
-# Claude Code users
-npm i -g @fly-ai/flyai-cli
-cp -r /path/to/flyai-skill/skills/flyai ~/.claude/skills/flyai
-```
-
-**playwright missing:**
-```bash
-pip install playwright
-python -m playwright install chromium
-```
-
-**Or run the one-click setup script** (from the skill's root directory):
-```bash
-bash scripts/setup.sh
-```
+- **flyai-cli missing** → tell user: `npm i -g @fly-ai/flyai-cli`
+- **python3 missing** → tell user: install Python 3
+- **playwright missing** → tell user: `pip3 install playwright && python3 -m playwright install chromium`
 
 **Note:** flyai-cli is free to use and requires no API key — it connects directly to Fliggy's public search API.
 
-Only proceed to Step 1 when all dependencies are confirmed.
+Only proceed to Step 1 when all dependencies are confirmed present.
 
 ## When to Use This Skill
 
@@ -210,23 +201,13 @@ Generate a **full English** single-page travel plan table. This is the visa itin
 
 #### Generate PDF from the table
 
-After generating the Markdown table, convert it to a single-page A4 PDF using playwright:
+After generating the Markdown table, write it as a temporary HTML file (Times New Roman, A4, black & white), then render to PDF using the included script:
 
-```python
-from playwright.sync_api import sync_playwright
-
-# 1. Write the table to a temporary HTML file (Times New Roman, A4, black & white)
-# 2. Render to PDF:
-with sync_playwright() as p:
-    browser = p.chromium.launch()
-    page = browser.new_page()
-    page.goto(f'file://{html_path}')
-    page.pdf(path='My_Travel_Plan.pdf', format='A4',
-             margin={'top':'16mm','right':'14mm','bottom':'16mm','left':'14mm'},
-             print_background=True)
-    browser.close()
-# 3. Delete the temporary HTML file — only deliver the PDF to the user
+```bash
+python3 scripts/render_pdf.py --html /tmp/travel_plan.html --output My_Travel_Plan.pdf
 ```
+
+The script renders the HTML to a single-page A4 PDF via playwright chromium, then deletes the temporary HTML file. Only deliver the PDF to the user.
 
 #### Output 2: Booking Links HTML (Chinese + English)
 

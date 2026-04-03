@@ -3,7 +3,7 @@ name: visa-itinerary-gen
 description: 30秒生成领馆级签证行程计划书 — Generate consulate-grade visa itinerary from natural language. Real flyai data, zero hallucination. PDF + booking links with Fliggy.
 homepage: https://github.com/zephryve/visa-itinerary-gen
 metadata:
-  version: 1.2.0
+  version: 1.5.0
   agent:
     type: tool
     runtime: node
@@ -42,9 +42,20 @@ metadata:
 
 Generate a consulate-grade visa itinerary document in 30 seconds. Real data from flyai, zero hallucination.
 
-## Step 0: Dependency Check (MUST run before anything else)
+## Execution Contract — Read This First
 
-When this skill is activated, **first run these checks silently**:
+**You are a strict executor of this skill, not a co-designer.** Follow every step in the exact order written. Do NOT:
+
+- **Skip steps** you consider unnecessary. Every step exists for a reason. If it says "run this command", run it. If it says "review this output", review it.
+- **Reinterpret instructions.** "Pick the top-rated hotel" means pick the top-rated hotel. Do not substitute a cheaper hotel for budget reasons, do not pick a "better value" alternative, do not apply your own judgment to override an explicit rule.
+- **Optimize on behalf of the user.** This skill already handles edge cases (budget exceeded, data missing, etc.) in specific steps. If a situation is not covered by the instructions, ask the user — do not invent a workaround.
+- **Combine or reorder steps.** Step numbers are execution order. Do not merge Step 3+4+5 into a single batch, do not skip Step 2 because "the date is obvious", do not skip Step 8 because "the output looks fine".
+
+**When in doubt, follow the literal instruction. When instructions conflict with your judgment, the instruction wins.**
+
+## Step 0: Dependency Check — MANDATORY, DO NOT SKIP
+
+When this skill is activated, **first run these checks before doing anything else**. This step catches environment problems early — skipping it leads to silent failures mid-execution that are harder to debug.
 
 ```bash
 # 1. Check node (required by flyai-cli)
@@ -107,13 +118,13 @@ Extract destination cities, travel dates, number of travelers, departure city, a
 For multi-country trips, determine the city sequence. Example for Italy + France:
 - Milan → Venice → Florence → Rome → Nice → Paris
 
-### Step 2: Get Current Date
+### Step 2: Get Current Date — MANDATORY, DO NOT SKIP
 
 ```bash
 date +%Y-%m-%d
 ```
 
-Use this to calculate relative dates if the user says "next month" etc.
+You MUST run this command and use the output as the reference date. Do NOT assume today's date from your training data or system prompt — those can be wrong. This is the only reliable source of truth for date calculations. Use it to resolve relative dates ("next month", "this Friday", etc.).
 
 ### Step 3: Call flyai — Flights
 
@@ -152,7 +163,7 @@ From each result, extract: `name`, `address`, `price`, `score`, `detailUrl`.
 
 **Verify the hotel is actually in the target city.** Check the `address` field — if it contains a different country or city, discard that result.
 
-Pick the top-rated hotel for each city. If no valid results, mark "Hotel to be confirmed" in the itinerary.
+**Pick the top-rated hotel for each city — this is a hard rule, not a suggestion.** Do NOT substitute a cheaper or "better value" hotel to fit the user's budget. Budget handling is done separately in the booking links output (see Error Handling: "Budget exceeded"). Your job here is to pick the highest-rated valid hotel, period. If no valid results, mark "Hotel to be confirmed" in the itinerary.
 
 ### Step 5: Call flyai — Attractions
 
@@ -185,7 +196,7 @@ Select 2-4 attractions per city to fill the daily itinerary. Distribute realisti
 
 You MUST produce TWO outputs:
 
-#### Output 1: Travel Plan Table (Markdown)
+#### Output 1: Travel Plan Table (Markdown → PDF)
 
 Generate a **full English** single-page travel plan table. This is the visa itinerary — keep it clean and simple, no extra sections.
 
@@ -211,20 +222,20 @@ Generate a **full English** single-page travel plan table. This is the visa itin
 
 #### Generate PDF from the table
 
-After generating the Markdown table, write it as a temporary HTML file (Times New Roman, A4, black & white), then render to PDF using the included script.
-
-First, locate this skill's install directory (the folder containing this SKILL.md), then run:
+Save the Markdown table to `travel_plan.md` in the working directory, then render it to PDF:
 
 ```bash
-python3 <skill_dir>/scripts/render_pdf.py --html /tmp/travel_plan.html --output My_Travel_Plan.pdf
+python3 <skill_dir>/scripts/render_pdf.py --md travel_plan.md --output My_Travel_Plan.pdf
 ```
 
 For example, if this skill is installed at `~/.claude/skills/visa-itinerary-gen/`, the command would be:
 ```bash
-python3 ~/.claude/skills/visa-itinerary-gen/scripts/render_pdf.py --html /tmp/travel_plan.html --output My_Travel_Plan.pdf
+python3 ~/.claude/skills/visa-itinerary-gen/scripts/render_pdf.py --md travel_plan.md --output My_Travel_Plan.pdf
 ```
 
-The script renders the HTML to a single-page A4 PDF via playwright chromium, then deletes the temporary HTML file. Only deliver the PDF to the user.
+The script converts Markdown to a styled A4 PDF internally (Times New Roman, black & white, single-page table layout). Deliver both files to the user:
+- `travel_plan.md` — editable source, user can modify and re-render
+- `My_Travel_Plan.pdf` — print-ready for consulate submission
 
 #### Output 2: Booking Links HTML (Chinese + English)
 
@@ -241,15 +252,27 @@ Each HTML file contains three tables (Flights / Hotels / Attractions) with:
 
 Data to fill into templates:
 
-**Flights table:** route (CN/EN city names), airline + specific flight number (e.g., "卡塔尔航空 QR871" / "Qatar Airways QR871"), price per person, Fliggy `jumpUrl`. **Flight numbers are mandatory** — extract `marketingTransportName` + `marketingTransportNo` from flyai results. Never omit the flight number or write only the airline name.
+**Flights table:** route (CN/EN city names), airline + flight number, price per person, Fliggy `jumpUrl`.
 
-**Hotels table:** city, hotel `name` (EN) / flyai Chinese name, `price`, `star` + `interestsPoi` as recommendation, Fliggy `detailUrl`
+Flight display rules — extract `marketingTransportName` + `marketingTransportNo` from each segment in flyai results, then format as follows:
+
+- **Airline name**: use `marketingTransportName` as-is from flyai (e.g. "南航", "阿提哈德"). For the English version, translate to the airline's official English name (e.g. "China Southern", "Etihad").
+- **Flight numbers are mandatory.** Never omit the flight number or write only the airline name.
+- **Direct flight**: `{airline} {flight_no}` — e.g. `海南航空 HU7937`
+- **Same-airline connecting flights**: combine flight numbers with `+` — e.g. `阿提哈德 EY156+EY888`
+- **Multi-airline connecting flights**: separate airlines with `→`, following the actual boarding sequence — e.g. `南航 CZ8790 → 阿提哈德 EY889+EY081`
+- **Symbol rules**: `+` joins consecutive same-airline segments; `→` joins different airlines. Do not merge non-consecutive same-airline segments.
+- **No transfer descriptions.** Do not write "经多哈中转", "via Abu Dhabi", "直飞" etc. in the flight column. The flight numbers and airline names already convey this information.
+
+**Hotels table:** city, hotel `name` (EN) / flyai Chinese name, `price` (per night — use the `price` field from flyai as-is, do not calculate total cost or multiply by nights/guests), `star` + `interestsPoi` as recommendation, Fliggy `detailUrl`. Column header: "每晚" (CN) / "Price/night" (EN).
 
 **Attractions table:** city, attraction `name` (EN) / flyai Chinese name, `category` as recommendation, Fliggy `jumpUrl`
 
-### Step 8: Delivery Review
+### Step 8: Delivery Review — MANDATORY, DO NOT SKIP
 
-Before delivering to the user, review each output as if you were the person who will submit it. The goal is to deliver something that can be used directly — not a draft that needs manual checking.
+Before delivering to the user, review each output as if you were the person who will submit it to a consulate. This step catches data errors that ruin the document's credibility. Do NOT skip it because "the output looks fine" — that is exactly when errors slip through.
+
+The goal is to deliver something that can be used directly — not a draft that needs manual checking.
 
 **Review Output 1 (Travel Plan PDF) — the visa officer will read this:**
 - Every hotel address is in the correct city (not a different country or region)
@@ -263,6 +286,11 @@ Before delivering to the user, review each output as if you were the person who 
 - EN version: every flight has airline + flight number (e.g., "Spring Airlines 9C8515")
 - Attraction categories/descriptions make sense (discard or replace obviously wrong labels like "山湖田园" for a city observation deck)
 - Every hotel and flight has a Fliggy link; if data exists but link is missing, note "请在飞猪搜索该航线"
+- EN version: verify all English translations are correct. flyai returns Chinese data — the agent translates airline names, hotel names, and attraction names to English. Check each translation against the entity's official English name:
+  - Airline names: use IATA official English name, not literal translation (e.g. "南航" → "China Southern Airlines", not "Southern Airlines")
+  - Hotel names: use the hotel's own English name from the address or booking site, not a translation of the Chinese transliteration (e.g. "阿勒尔霍特尔安德雷西登斯布拉格" is a transliteration of "Hotel Residence Agnes", not a Chinese name to be translated back)
+  - Attraction names: use the internationally recognized English name (e.g. "布拉格城堡" → "Prague Castle")
+  - If unsure of the correct English name, keep the flyai Chinese name rather than guessing
 
 **When something fails review:**
 - Fix it if you can (re-search, substitute data, remove bad labels)

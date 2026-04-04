@@ -3,7 +3,7 @@ name: visa-itinerary-gen
 description: 30秒生成领馆级签证行程计划书 — Generate consulate-grade visa itinerary from natural language. Real flyai data, zero hallucination. PDF + booking links with Fliggy.
 homepage: https://github.com/zephryve/visa-itinerary-gen
 metadata:
-  version: 1.5.0
+  version: 1.5.1
   agent:
     type: tool
     runtime: node
@@ -268,6 +268,18 @@ Flight display rules — extract `marketingTransportName` + `marketingTransportN
 
 **Attractions table:** city, attraction `name` (EN) / flyai Chinese name, `category` as recommendation, Fliggy `jumpUrl`
 
+#### Budget Check (only when budget is specified)
+
+After generating both outputs, calculate the estimated total: sum all flight prices × number of travelers, plus all hotel prices × number of nights per hotel. If the total exceeds the user's stated budget:
+
+1. Identify the most expensive hotel (highest per-night price)
+2. From the Step 4 flyai results for that city, pick the next-best hotel one tier down (e.g., 豪华型 → 高档型 → 舒适型). If the original results have no lower-tier options, re-run `flyai search-hotels` for that city without the `--sort` parameter and pick the top-rated hotel from the lower tier.
+3. Recalculate total. Still over budget? Repeat for the next most expensive hotel.
+4. Update both Output 1 (travel_plan.md + re-render PDF) and Output 2 (HTML files) with the new hotel selections.
+5. If all hotels are already at 舒适型 and total still exceeds budget, keep the current selection and add a note in the booking links HTML: "Estimated total exceeds stated budget."
+
+If no budget is specified, skip this check entirely.
+
 ### Step 8: Delivery Review — MANDATORY, DO NOT SKIP
 
 Before delivering to the user, review each output as if you were the person who will submit it to a consulate. This step catches data errors that ruin the document's credibility. Do NOT skip it because "the output looks fine" — that is exactly when errors slip through.
@@ -275,6 +287,7 @@ Before delivering to the user, review each output as if you were the person who 
 The goal is to deliver something that can be used directly — not a draft that needs manual checking.
 
 **Review Output 1 (Travel Plan PDF) — the visa officer will read this:**
+- **Language check: scan the entire travel_plan.md for any non-ASCII characters** (Chinese, Japanese, Arabic, etc.). The travel plan must be pure English + numbers + standard punctuation. If any non-ASCII text is found (most commonly: Chinese airline names copied from flyai, Chinese hotel names, or Chinese city names), translate it to the correct English equivalent and re-render the PDF. This is a hard gate — do not proceed to delivery until the table is 100% English.
 - Every hotel address is in the correct city (not a different country or region)
 - Every flight row has a specific flight number + departure time (not just the airline name)
 - Each day's touring spots are only in that day's city (no mixing cities on transfer days)

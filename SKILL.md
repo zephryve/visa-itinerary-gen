@@ -1,9 +1,9 @@
 ---
 name: visa-itinerary-gen
-description: 30秒生成领馆级签证行程计划书 — Generate consulate-grade visa itinerary from natural language. Real flyai data, zero hallucination. PDF + booking links with Fliggy.
+description: 一键生成领馆级签证行程计划书 — Generate consulate-grade visa itinerary from natural language. Real flyai data, zero hallucination. PDF + booking links with Fliggy.
 homepage: https://github.com/zephryve/visa-itinerary-gen
 metadata:
-  version: 1.5.1
+  version: 1.5.2
   agent:
     type: tool
     runtime: node
@@ -38,9 +38,9 @@ metadata:
 
 # visa-itinerary-gen — Visa Itinerary Generator
 
-> **一句话说明：** 输入"4个人4月27号从杭州去意大利和法国，5月4号回"，30秒生成领馆级签证行程计划书（PDF）+ 飞猪预订链接。省 ¥30-110 代做费，省 3-5 小时手工排版。
+> **一句话说明：** 输入"4个人4月27号从杭州去意大利和法国，5月4号回"，一键生成领馆级签证行程计划书（PDF）+ 飞猪预订链接。省 ¥30-110 代做费，省 3-5 小时手工排版。
 
-Generate a consulate-grade visa itinerary document in 30 seconds. Real data from flyai, zero hallucination.
+Generate a consulate-grade visa itinerary document with one command. Real data from flyai, zero hallucination.
 
 ## Execution Contract — Read This First
 
@@ -111,11 +111,26 @@ Example: `"4个人4月27号从杭州去意大利和法国，5月4号回，预算
 
 ## Execution Steps
 
-### Step 1: Parse Input
+### Step 1: Parse Input & Validate
 
-Extract destination cities, travel dates, number of travelers, departure city, and budget from the user's input. Plan a realistic day-by-day city routing.
+Extract destination cities, travel dates, number of travelers, departure city, and budget from the user's input.
 
-For multi-country trips, determine the city sequence. Example for Italy + France:
+**Mandatory validation — do NOT proceed to Step 2 until all required fields are confirmed:**
+
+| Field | Required | How to resolve if missing |
+|-------|----------|--------------------------|
+| Destination (目的地) | Yes | Ask user |
+| Departure city (出发城市) | Yes | Ask user |
+| Departure date (出发日期) | Yes | Ask user |
+| Trip duration (行程区间) | Yes — need either return date OR number of days | Ask user: "请问返回日期或出行天数？" |
+| Travelers (出行人数) | No — default 1 | Use default |
+| Budget (预算) | No | Skip |
+
+If the user provides "玩7天" or "一共8天", calculate the return date from departure date + days. If only a return date is given, calculate trip days from the two dates. Either form is acceptable — the goal is to determine the full date range.
+
+**Stop and ask the user if any of the 4 required fields cannot be determined from their input.** Do not guess or assume.
+
+Once all fields are confirmed, plan a realistic day-by-day city routing. For multi-country trips, determine the city sequence. Example for Italy + France:
 - Milan → Venice → Florence → Rome → Nice → Paris
 
 ### Step 2: Get Current Date — MANDATORY, DO NOT SKIP
@@ -127,6 +142,8 @@ date +%Y-%m-%d
 You MUST run this command and use the output as the reference date. Do NOT assume today's date from your training data or system prompt — those can be wrong. This is the only reliable source of truth for date calculations. Use it to resolve relative dates ("next month", "this Friday", etc.).
 
 ### Step 3: Call flyai — Flights
+
+**Retry rule (applies to all flyai calls in Step 3, 4, and 5):** If a flyai command returns empty results (null or empty itemList) or errors out, wait 3 seconds and retry once. If still failed, handle per the Error Handling table and continue to the next step.
 
 Search for all flight segments. Flight search works with both Chinese and English city names, but prefer Chinese for consistency.
 

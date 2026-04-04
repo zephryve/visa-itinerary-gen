@@ -1,6 +1,6 @@
 # visa-itinerary-gen
 
-> 30秒生成领馆级签证行程计划书。真实航班+酒店+景点数据，零幻觉。
+> 一键生成领馆级签证行程计划书。真实航班+酒店+景点数据，零幻觉。
 
 > [📋](https://zephryve.github.io/visa-itinerary-gen/) **[查看完整 PRD](https://zephryve.github.io/visa-itinerary-gen/)**
 

@@ -1,9 +1,9 @@
 ---
 name: visa-itinerary-gen
-description: 轻松生成领馆级签证行程计划书 — Generate consulate-grade visa itinerary from natural language. Real flyai data, zero hallucination. PDF + booking links with Fliggy.
+description: 一键生成领馆级签证行程计划书 — Generate consulate-grade visa itinerary from natural language. Real flyai data, zero hallucination. PDF + booking links with Fliggy.
 homepage: https://github.com/zephryve/visa-itinerary-gen
 metadata:
-  version: 1.5.8
+  version: 1.5.9
   agent:
     type: tool
     runtime: node
@@ -38,7 +38,7 @@ metadata:
 
 # visa-itinerary-gen — Visa Itinerary Generator
 
-> **一句话说明：** 输入"4个人4月27号从杭州去意大利和法国，5月4号回"，轻松生成领馆级签证行程计划书（PDF）+ 飞猪预订链接。省 ¥30-110 代做费，省 3-5 小时手工排版。
+> **一句话说明：** 输入"4个人4月27号从杭州去意大利和法国，5月4号回"，一键生成领馆级签证行程计划书（PDF）+ 飞猪预订链接。省 ¥30-110 代做费，省 3-5 小时手工排版。
 
 Generate a consulate-grade visa itinerary document with one command. Real data from flyai, zero hallucination.
 
@@ -74,7 +74,7 @@ python3 -c "import playwright" 2>/dev/null || echo "MISSING: playwright"
 If anything is missing, **ask the user for permission** before installing. Do NOT install silently — always confirm first.
 
 - **node missing** → tell user: install Node.js from https://nodejs.org/ (cannot be auto-installed)
-- **flyai-cli missing** → ask user: "flyai-cli is not installed. It's a free CLI tool (no API key needed) for searching flights, hotels, and attractions on Fliggy. Shall I install it? (`npm i -g @fly-ai/flyai-cli`)" → if user agrees, run the install command
+- **flyai-cli missing** → ask user: "flyai-cli is not installed. It's a free CLI tool (no credentials needed) for searching flights, hotels, and attractions on Fliggy. Shall I install it? (`npm i -g @fly-ai/flyai-cli`)" → if user agrees, run the install command
 - **python3 missing** → tell user: install Python 3 from https://python.org/ (cannot be auto-installed)
 - **playwright missing** → ask user: "playwright is not installed. It's needed for PDF generation. Shall I install it? (`pip3 install playwright && python3 -m playwright install chromium`)" → if user agrees, run the install commands
 
@@ -262,7 +262,7 @@ Generate TWO HTML files. **Reference the visual style, CSS, and HTML structure o
 - `booking_links_en.html` — English version with English recommendations
 
 Each HTML file contains three tables (Flights / Hotels / Attractions) with:
-- Every row has a **copy button** (click to copy Fliggy link) + clickable link
+- Every row has a **copy button** (click to copy Fliggy link to clipboard) + clickable link
 - **Recommendations** from flyai data: hotels show `star` + `interestsPoi` (e.g. "高档型 · 近圣马可广场"), attractions show `category` (e.g. "博物馆 · 达芬奇名作")
 - Fonts: Georgia (cross-platform) + Playfair Display (EN title only, via Google Fonts)
 - Style: memo briefing aesthetic (warm paper background, accent red dividers, black table headers)

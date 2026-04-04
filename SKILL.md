@@ -1,9 +1,9 @@
 ---
 name: visa-itinerary-gen
-description: 一键生成领馆级签证行程计划书 — Generate consulate-grade visa itinerary from natural language. Real flyai data, zero hallucination. PDF + booking links with Fliggy.
+description: 轻松生成领馆级签证行程计划书 — Generate consulate-grade visa itinerary from natural language. Real flyai data, zero hallucination. PDF + booking links with Fliggy.
 homepage: https://github.com/zephryve/visa-itinerary-gen
 metadata:
-  version: 1.5.7
+  version: 1.5.8
   agent:
     type: tool
     runtime: node
@@ -38,7 +38,7 @@ metadata:
 
 # visa-itinerary-gen — Visa Itinerary Generator
 
-> **一句话说明：** 输入"4个人4月27号从杭州去意大利和法国，5月4号回"，一键生成领馆级签证行程计划书（PDF）+ 飞猪预订链接。省 ¥30-110 代做费，省 3-5 小时手工排版。
+> **一句话说明：** 输入"4个人4月27号从杭州去意大利和法国，5月4号回"，轻松生成领馆级签证行程计划书（PDF）+ 飞猪预订链接。省 ¥30-110 代做费，省 3-5 小时手工排版。
 
 Generate a consulate-grade visa itinerary document with one command. Real data from flyai, zero hallucination.
 

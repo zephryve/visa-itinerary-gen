@@ -3,7 +3,7 @@ name: visa-itinerary-gen
 description: 一键生成领馆级签证行程计划书 — Generate consulate-grade visa itinerary from natural language. Real flyai data, zero hallucination. PDF + booking links with Fliggy.
 homepage: https://github.com/zephryve/visa-itinerary-gen
 metadata:
-  version: 1.5.6
+  version: 1.5.7
   agent:
     type: tool
     runtime: node
@@ -262,7 +262,7 @@ Generate TWO HTML files. **Reference the visual style, CSS, and HTML structure o
 - `booking_links_en.html` — English version with English recommendations
 
 Each HTML file contains three tables (Flights / Hotels / Attractions) with:
-- Every row has a **copy button** (click to copy Fliggy link to clipboard) + clickable link
+- Every row has a **copy button** (click to copy Fliggy link) + clickable link
 - **Recommendations** from flyai data: hotels show `star` + `interestsPoi` (e.g. "高档型 · 近圣马可广场"), attractions show `category` (e.g. "博物馆 · 达芬奇名作")
 - Fonts: Georgia (cross-platform) + Playfair Display (EN title only, via Google Fonts)
 - Style: memo briefing aesthetic (warm paper background, accent red dividers, black table headers)

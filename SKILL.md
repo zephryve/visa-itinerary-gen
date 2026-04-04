@@ -3,7 +3,7 @@ name: visa-itinerary-gen
 description: 一键生成领馆级签证行程计划书 — Generate consulate-grade visa itinerary from natural language. Real flyai data, zero hallucination. PDF + booking links with Fliggy.
 homepage: https://github.com/zephryve/visa-itinerary-gen
 metadata:
-  version: 1.5.9
+  version: 1.6.0
   agent:
     type: tool
     runtime: node
@@ -74,7 +74,7 @@ python3 -c "import playwright" 2>/dev/null || echo "MISSING: playwright"
 If anything is missing, **ask the user for permission** before installing. Do NOT install silently — always confirm first.
 
 - **node missing** → tell user: install Node.js from https://nodejs.org/ (cannot be auto-installed)
-- **flyai-cli missing** → ask user: "flyai-cli is not installed. It's a free CLI tool (no credentials needed) for searching flights, hotels, and attractions on Fliggy. Shall I install it? (`npm i -g @fly-ai/flyai-cli`)" → if user agrees, run the install command
+- **flyai-cli missing** → ask user: "flyai-cli is not installed. It's a free CLI tool (no API key needed) for searching flights, hotels, and attractions on Fliggy. Shall I install it? (`npm i -g @fly-ai/flyai-cli`)" → if user agrees, run the install command
 - **python3 missing** → tell user: install Python 3 from https://python.org/ (cannot be auto-installed)
 - **playwright missing** → ask user: "playwright is not installed. It's needed for PDF generation. Shall I install it? (`pip3 install playwright && python3 -m playwright install chromium`)" → if user agrees, run the install commands
 

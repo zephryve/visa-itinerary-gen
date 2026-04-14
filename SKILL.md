@@ -254,36 +254,93 @@ The script converts Markdown to a styled A4 PDF internally (Times New Roman, bla
 - `travel_plan.md` — editable source, user can modify and re-render
 - `My_Travel_Plan.pdf` — print-ready for consulate submission
 
-#### Output 2: Booking Links HTML (Chinese + English)
+#### Output 2: Booking Links Data (JSON → HTML)
 
-Generate TWO HTML files. **Reference the visual style, CSS, and HTML structure of `templates/` as design examples, but dynamically generate all content from flyai data.** The templates contain hardcoded demo data (Italy & France), not fillable placeholders — do NOT attempt find-and-replace. Instead, replicate the same layout and styling with real data.
+Write a `data.json` file to the working directory containing all flyai data for booking links. Then run the render script to produce the HTML files.
 
-- `booking_links_cn.html` — Chinese version with Chinese hotel/attraction names and recommendations
-- `booking_links_en.html` — English version with English recommendations
+**JSON schema — every field is required unless marked optional:**
 
-Each HTML file contains three tables (Flights / Hotels / Attractions) with:
-- Every row has a **copy button** (click to copy Fliggy link to clipboard) + clickable link
-- **Recommendations** from flyai data: hotels show `star` + `interestsPoi` (e.g. "高档型 · 近圣马可广场"), attractions show `category` (e.g. "博物馆 · 达芬奇名作")
-- Fonts: Georgia (cross-platform) + Playfair Display (EN title only, via Google Fonts)
-- Style: memo briefing aesthetic (warm paper background, accent red dividers, black table headers)
+```json
+{
+  "title": {
+    "destination_cn": "意大利 & 法国",
+    "destination_en": "Italy & France",
+    "dates": "2026-04-27 ~ 2026-05-04"
+  },
+  "flights": [
+    {
+      "route_cn": "杭州 → 米兰",
+      "route_en": "Hangzhou → Milan",
+      "airline_cn": "南航 CZ8790 → 阿提哈德 EY889+EY081",
+      "airline_en": "China Southern CZ8790 → Etihad EY889+EY081",
+      "price": 4580,
+      "url": "https://a.feizhu.com/..."
+    }
+  ],
+  "hotels": [
+    {
+      "city_cn": "米兰",
+      "city_en": "Milan",
+      "name_cn": "米兰大教堂广场酒店",
+      "name_en": "Hotel Piazza Duomo Milano",
+      "price": 1280,
+      "star": "高档型",
+      "recommendation_cn": "近米兰大教堂",
+      "recommendation_en": "Near Duomo di Milano",
+      "url": "https://a.feizhu.com/..."
+    }
+  ],
+  "attractions": [
+    {
+      "city_cn": "米兰",
+      "city_en": "Milan",
+      "name_cn": "米兰大教堂",
+      "name_en": "Duomo di Milano",
+      "category_cn": "宗教场所 · 米兰地标",
+      "category_en": "Landmark · Milan's iconic cathedral",
+      "url": "https://a.feizhu.com/..."
+    }
+  ]
+}
+```
 
-Data to fill into templates:
+**Data filling rules:**
 
-**Flights table:** route (CN/EN city names), airline + flight number, price per person, Fliggy `jumpUrl`.
-
-Flight display rules — extract `marketingTransportName` + `marketingTransportNo` from each segment in flyai results, then format as follows:
-
-- **Airline name**: use `marketingTransportName` as-is from flyai (e.g. "南航", "阿提哈德"). For the English version, translate to the airline's official English name (e.g. "China Southern", "Etihad").
+**Flights** — format `airline_cn` and `airline_en` fields:
+- `airline_cn` uses `marketingTransportName` as-is from flyai (e.g. "南航", "阿提哈德"). `airline_en` uses the airline's official English name (e.g. "China Southern", "Etihad").
 - **Flight numbers are mandatory.** Never omit the flight number or write only the airline name.
 - **Direct flight**: `{airline} {flight_no}` — e.g. `海南航空 HU7937`
 - **Same-airline connecting flights**: combine flight numbers with `+` — e.g. `阿提哈德 EY156+EY888`
-- **Multi-airline connecting flights**: separate airlines with `→`, following the actual boarding sequence — e.g. `南航 CZ8790 → 阿提哈德 EY889+EY081`
-- **Symbol rules**: `+` joins consecutive same-airline segments; `→` joins different airlines. Do not merge non-consecutive same-airline segments.
-- **No transfer descriptions.** Do not write "经多哈中转", "via Abu Dhabi", "直飞" etc. in the flight column. The flight numbers and airline names already convey this information.
+- **Multi-airline connecting flights**: separate airlines with `→` — e.g. `南航 CZ8790 → 阿提哈德 EY889+EY081`
+- **No transfer descriptions.** Do not write "经多哈中转", "via Abu Dhabi" etc.
+- `price`: per-person price as a number (not string), from flyai result
+- `url`: Fliggy `jumpUrl` from flyai. If no link available, set to empty string `""`
 
-**Hotels table:** city, hotel `name` (EN) / flyai Chinese name, `price` (per night — use the `price` field from flyai as-is, do not calculate total cost or multiply by nights/guests), `star` + `interestsPoi` as recommendation, Fliggy `detailUrl`. Column header: "每晚" (CN) / "Price/night" (EN).
+**Hotels:**
+- **Pick the top-rated hotel for each city — hard rule.** Do NOT substitute a cheaper hotel.
+- `name_en`: use the hotel's own English name, not a translation of the Chinese transliteration
+- `price`: per-night price from flyai `price` field as a number. Do not calculate total cost or multiply by nights/guests
+- `star`: tier label from flyai (e.g. "豪华型", "高档型", "舒适型")
+- `recommendation_cn/en`: `interestsPoi` or notable features (e.g. "近圣马可广场" / "Near St. Mark's Square")
 
-**Attractions table:** city, attraction `name` (EN) / flyai Chinese name, `category` as recommendation, Fliggy `jumpUrl`
+**Attractions:**
+- `name_en`: use the internationally recognized English name (e.g. "布拉格城堡" → "Prague Castle")
+- `category_cn/en`: from flyai `category`. Discard obviously wrong labels (e.g. "山湖田园" for a city observation deck)
+
+**After writing `data.json`, render the HTML files:**
+
+```bash
+python3 <skill_dir>/scripts/render_booking.py --data data.json --output-dir .
+```
+
+For example, if this skill is installed at `~/.claude/skills/visa-itinerary-gen/`, the command would be:
+```bash
+python3 ~/.claude/skills/visa-itinerary-gen/scripts/render_booking.py --data data.json --output-dir .
+```
+
+The script produces two files:
+- `booking_links_cn.html` — Chinese version
+- `booking_links_en.html` — English version
 
 #### Budget Check (only when budget is specified)
 
@@ -292,8 +349,8 @@ After generating both outputs, calculate the estimated total: sum all flight pri
 1. Identify the most expensive hotel (highest per-night price)
 2. From the Step 4 flyai results for that city, pick the next-best hotel one tier down (e.g., 豪华型 → 高档型 → 舒适型). If the original results have no lower-tier options, re-run `flyai search-hotels` for that city without the `--sort` parameter and pick the top-rated hotel from the lower tier.
 3. Recalculate total. Still over budget? Repeat for the next most expensive hotel.
-4. Update both Output 1 (travel_plan.md + re-render PDF) and Output 2 (HTML files) with the new hotel selections.
-5. If all hotels are already at 舒适型 and total still exceeds budget, keep the current selection and add a note in the booking links HTML: "Estimated total exceeds stated budget."
+4. Update both Output 1 (travel_plan.md + re-render PDF) and Output 2 (data.json + re-run render_booking.py) with the new hotel selections.
+5. If all hotels are already at 舒适型 and total still exceeds budget, keep the current selection and add a note: set a `budget_warning` field in data.json's `title` object (e.g. `"budget_warning": "Estimated total exceeds stated budget"`).
 
 If no budget is specified, skip this check entirely.
 
@@ -311,19 +368,21 @@ The goal is to deliver something that can be used directly — not a draft that 
 - Transfer day timing is realistic (early morning flight = no sightseeing that day)
 - Every piece of data (flight numbers, hotel names, touring spot names) must trace back to a flyai call. If a touring spot was not returned by flyai, it must be removed — use "Local exploration / neighborhood walk" instead. This skill's promise is zero hallucination from real data.
 
-**Review Output 2 (Booking Links HTML) — the user will use this to book:**
-- CN version: every flight has airline + flight number (e.g., "春秋航空 9C8515", not just "春秋航空")
-- EN version: every flight has airline + flight number (e.g., "Spring Airlines 9C8515")
-- Attraction categories/descriptions make sense (discard or replace obviously wrong labels like "山湖田园" for a city observation deck)
-- Every hotel and flight has a Fliggy link; if data exists but link is missing, note "请在飞猪搜索该航线"
-- EN version: verify all English translations are correct. flyai returns Chinese data — the agent translates airline names, hotel names, and attraction names to English. Check each translation against the entity's official English name:
-  - Airline names: use IATA official English name, not literal translation (e.g. "南航" → "China Southern Airlines", not "Southern Airlines")
-  - Hotel names: use the hotel's own English name from the address or booking site, not a translation of the Chinese transliteration (e.g. "阿勒尔霍特尔安德雷西登斯布拉格" is a transliteration of "Hotel Residence Agnes", not a Chinese name to be translated back)
+**Review Output 2 (data.json) — the user will use this to book:**
+- Every flight entry has both `airline_cn` and `airline_en` with flight numbers (not just airline name)
+- Every flight entry has a non-empty `url` (if flyai returned a `jumpUrl`)
+- Every hotel entry has a non-empty `url`
+- Every hotel entry has `star` and `recommendation_cn/en` populated
+- Every attraction entry has `category_cn/en` populated; discard obviously wrong labels
+- All `_en` fields contain correct English translations:
+  - Airline names: use IATA official English name (e.g. "南航" → "China Southern Airlines", not "Southern Airlines")
+  - Hotel names: use the hotel's own English name, not a translation of the Chinese transliteration
   - Attraction names: use the internationally recognized English name (e.g. "布拉格城堡" → "Prague Castle")
   - If unsure of the correct English name, keep the flyai Chinese name rather than guessing
+- **render_booking.py execution:** verify the script ran successfully (exit code 0) and both HTML files exist. If the script failed, fix the data.json issue and re-run.
 
 **When something fails review:**
-- Fix it if you can (re-search, substitute data, remove bad labels)
+- Fix it if you can (correct data.json fields and re-run render_booking.py)
 - If unfixable (flyai has no data), mark it clearly in the output and tell the user what needs their attention
 - Default is: user receives a ready-to-use document, not a TODO list
 

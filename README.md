@@ -90,9 +90,16 @@ search-flight  search-hotels  search-poi
               ↓
          输出生成
    ┌──────────┴──────────┐
-行程表 PDF           预订链接 HTML
-(纯英文 A4)         (中文版 + 英文版)
+行程表 PDF           data.json
+(纯英文 A4)         (结构化预订数据)
+                        ↓
+                  render_booking.py
+                        ↓
+               预订链接 HTML × 2
+               (中文版 + 英文版)
 ```
+
+预订链接采用数据与渲染分离：agent 输出 `data.json`（结构化的航班/酒店/景点数据），由 `render_booking.py` 渲染为中英文 HTML 页面。这样即使 90 天 10 城市的超长行程也能正常生成。
 
 ### flyai 调用约束
 

@@ -99,7 +99,7 @@ search-flight  search-hotels  search-poi
                (中文版 + 英文版)
 ```
 
-预订链接采用数据与渲染分离：agent 输出 `data.json`（结构化的航班/酒店/景点数据），由 `render_booking.py` 渲染为中英文 HTML 页面。这样即使 90 天 10 城市的超长行程也能正常生成。
+预订链接采用数据与渲染分离：agent 输出 `data.json`（结构化的航班/酒店/景点数据），由 `render_booking.py` 渲染为中英文 HTML 页面。这样即使 90 天 10 城市的超长行程也能正常生成，不再受模型单次输出上限约束。
 
 ### flyai 调用约束
 

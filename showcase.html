@@ -6,116 +6,120 @@
 <title>visa-itinerary-gen · 签证行程单生成器</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{--ink:#1a1a1a;--paper:#faf9f7;--accent:#c45a3c;--accent-light:#f0e0d8;--muted:#6b6560;--border:#e0ddd8;--highlight:#fffbeb;--green:#2d8a4e;--green-light:#e8f5e9;--purple:#534AB7;--purple-light:#EEEDFE}
+:root{--ink:#1a1a1a;--paper:#faf9f7;--accent:#c45a3c;--accent-light:#f0e0d8;--muted:#6b6560;--border:#e0ddd8;--bg:#eeedea;--highlight:#fffbeb;--green:#2d8a4e;--purple:#534AB7}
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{background:#eeedea;color:var(--ink);font-family:'Noto Sans SC',sans-serif;font-size:15px;font-weight:400;line-height:1.8;-webkit-font-smoothing:antialiased}
-.page{max-width:780px;margin:40px auto;background:var(--paper);box-shadow:0 1px 10px rgba(0,0,0,.07)}
+body{background:var(--bg);color:var(--ink);font-family:'Noto Sans SC',system-ui,sans-serif;font-size:15px;line-height:1.8;-webkit-font-smoothing:antialiased}
 
-/* Header — memo style */
-.header{padding:52px 52px 36px;border-bottom:2.5px solid var(--accent)}
-.header-meta{font-family:'Noto Serif SC',serif;font-size:13px;font-weight:600;color:var(--accent);letter-spacing:3px;margin-bottom:14px}
-.header h1{font-family:'Noto Serif SC',serif;font-size:32px;font-weight:700;letter-spacing:2px;line-height:1.3;margin-bottom:8px}
-.header-sub{font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:20px}
-.header-links{display:flex;gap:10px;flex-wrap:wrap}
-.header-links a{font-size:13px;color:var(--muted);text-decoration:none;padding:7px 18px;border:1px solid var(--border);border-radius:4px;transition:all .2s}
-.header-links a:hover{border-color:var(--accent);color:var(--accent)}
-.header-links a.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.page{max-width:1000px;margin:0 auto;background:var(--paper);box-shadow:0 2px 40px rgba(0,0,0,.04)}
+
+/* Header */
+.header{padding:52px 56px 40px;border-bottom:2.5px solid var(--accent);text-align:center}
+.header-badge{font-family:'Noto Serif SC',serif;font-size:11px;font-weight:600;color:var(--accent);letter-spacing:6px;margin-bottom:14px}
+.header h1{font-family:'Noto Serif SC',serif;font-size:36px;font-weight:700;letter-spacing:2px;line-height:1.35;margin-bottom:12px}
+.header .tagline{font-size:17px;color:var(--muted);font-weight:300;margin-bottom:28px}
+.header-meta{font-size:14px;color:var(--muted);display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:0}
+.header-meta .name{color:var(--ink);font-weight:500;font-size:16px}
+.meta-sep{padding:0 10px;color:var(--border)}
+.meta-link{color:var(--muted);text-decoration:none;border-bottom:1px solid var(--border);transition:color .15s,border-color .15s}
+.meta-link:hover{color:var(--accent);border-bottom-color:var(--accent)}
+.meta-copy{cursor:pointer;position:relative;display:inline-block;border-bottom:1px solid var(--border);transition:color .15s,border-color .15s}
+.meta-copy:hover{color:var(--accent);border-bottom-color:var(--accent)}
+.meta-copy .text,.meta-copy .done{transition:opacity .3s}
+.meta-copy .done{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0}
 
 /* Content */
-.content{padding:0 52px}
-section{padding:36px 0;border-bottom:1px solid var(--border)}
+.content{padding:0 56px 48px}
+section{padding:32px 0;border-bottom:1px solid var(--border)}
 section:last-of-type{border-bottom:none}
-.section-num{font-family:'Noto Serif SC',serif;font-size:13px;font-weight:600;color:var(--accent);letter-spacing:3px;margin-bottom:8px}
-h2{font-family:'Noto Serif SC',serif;font-size:22px;font-weight:700;margin-bottom:16px}
-h3{font-family:'Noto Serif SC',serif;font-size:17px;font-weight:600;margin:24px 0 12px;padding-left:14px;border-left:3px solid var(--accent)}
-p{margin-bottom:14px}
+.section-num{font-family:'Noto Serif SC',serif;font-size:11px;font-weight:600;color:var(--accent);letter-spacing:5px;margin-bottom:8px}
+h2{font-family:'Noto Serif SC',serif;font-size:24px;font-weight:700;margin-bottom:12px;letter-spacing:.5px}
+h3{font-family:'Noto Serif SC',serif;font-size:16px;font-weight:600;margin:20px 0 10px;padding-left:14px;border-left:3px solid var(--accent)}
+p{margin-bottom:12px}
 
-/* Callout — memo style */
-.callout{background:var(--highlight);border-left:3px solid var(--accent);padding:16px 20px;margin:20px 0;border-radius:0 4px 4px 0}
+/* Components */
+.callout{background:var(--highlight);border-left:3px solid var(--accent);padding:14px 18px;margin:16px 0;border-radius:0 4px 4px 0;font-size:14px}
 .callout strong{color:var(--accent)}
-
-/* Quote block — memo style */
-.quote-block{font-family:'Noto Serif SC',serif;font-style:italic;color:var(--muted);border-left:3px solid var(--border);padding:12px 20px;margin:16px 0;font-size:15px;line-height:1.8}
-.quote-source{font-style:normal;font-family:'Noto Sans SC',sans-serif;font-size:12px;margin-top:6px}
+.quote-block{font-family:'Noto Serif SC',serif;font-style:italic;color:var(--muted);border-left:3px solid var(--border);padding:10px 18px;margin:12px 0;font-size:14px;line-height:1.8}
+.quote-source{font-style:normal;font-family:'Noto Sans SC',sans-serif;font-size:11px;margin-top:4px}
 .quote-source a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent-light)}
-
-/* Value box */
-.value-box{background:var(--accent-light);border-radius:6px;padding:16px 20px;margin:20px 0;font-size:14px}
+.value-box{background:var(--accent-light);border-radius:6px;padding:14px 18px;margin:16px 0;font-size:14px}
 .value-box strong{color:var(--accent)}
 
-/* Pain cards */
-.pain-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:20px 0}
-.pain-card{border:1px solid var(--border);border-radius:6px;padding:20px}
-.pain-card .label{font-size:12px;color:var(--muted);letter-spacing:1px;margin-bottom:6px}
+/* Pain grid */
+.pain-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+.pain-card{border:1px solid var(--border);border-radius:6px;padding:18px}
+.pain-card .label{font-size:11px;color:var(--muted);letter-spacing:1px;margin-bottom:4px}
 .pain-card .value{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;color:var(--accent);margin-bottom:4px}
 .pain-card .desc{font-size:13px;color:var(--muted);line-height:1.6}
 
-/* Evidence grid */
-.evidence-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:16px 0}
+/* Evidence */
+.evidence-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:12px 0}
 .evidence-grid img{width:100%;border:1px solid var(--border);border-radius:4px}
-.evidence-grid .cap{font-size:11px;color:var(--muted);margin-top:4px;text-align:center}
+.evidence-grid .cap{font-size:10px;color:var(--muted);margin-top:3px;text-align:center}
 
 /* Terminal */
-.terminal{background:#1a1a1a;border-radius:8px;overflow:hidden;margin:20px 0}
-.terminal-bar{background:#2a2a2a;padding:10px 16px;display:flex;align-items:center;gap:7px}
-.dot{width:11px;height:11px;border-radius:50%}
+.terminal{background:#1a1a1a;border-radius:8px;overflow:hidden;margin:16px 0}
+.terminal-bar{background:#2a2a2a;padding:8px 14px;display:flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:50%}
 .dot.r{background:#ff5f57}.dot.y{background:#febc2e}.dot.g{background:#28c840}
-.terminal-title{font-family:'JetBrains Mono',monospace;font-size:11px;color:#888;margin-left:6px}
-.terminal-body{padding:18px 20px;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:2;color:#999}
+.terminal-title{font-family:'JetBrains Mono',monospace;font-size:10px;color:#888;margin-left:6px}
+.terminal-body{padding:14px 18px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.9;color:#999}
 .terminal-body .prompt{color:#28c840}
 .terminal-body .cmd{color:#e5e5e5;font-weight:500}
 .terminal-body .hl{color:#c45a3c}
 .terminal-body .ok{color:#28c840}
 
 /* Flow */
-.flow{display:flex;align-items:center;gap:0;margin:20px 0}
-.flow-step{flex:1;text-align:center;padding:14px 10px;border:1px solid var(--border);border-radius:6px;min-width:0}
-.flow-step .ft{font-size:14px;font-weight:500;margin-bottom:2px}
+.flow{display:flex;align-items:center;margin:16px 0}
+.flow-step{flex:1;text-align:center;padding:12px 8px;border:1px solid var(--border);border-radius:6px}
+.flow-step .ft{font-size:13px;font-weight:500;margin-bottom:1px}
 .flow-step .fd{font-size:11px;color:var(--muted)}
-.flow-arrow{color:var(--accent);font-size:18px;padding:0 6px;flex-shrink:0}
+.flow-arrow{color:var(--accent);font-size:16px;padding:0 6px;flex-shrink:0}
 
-/* Output images */
-.output-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:20px 0}
-.output-card{border:1px solid var(--border);border-radius:6px;overflow:hidden}
-.output-card .card-label{padding:12px 16px;font-size:13px;font-weight:500;border-bottom:1px solid var(--border);background:#f5f3f0}
-.output-card img{width:100%;display:block}
+/* Screenshots */
+.screenshot-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+.screenshot-card{border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.screenshot-card img{width:100%;display:block}
+.screenshot-cap{font-size:10px;color:var(--muted);text-align:center;padding:6px;background:#f5f3f0;border-top:1px solid var(--border)}
+.screenshot-card.placeholder{display:flex;align-items:center;justify-content:center;min-height:160px;background:#f5f3f0;border-style:dashed}
+.ph-text{text-align:center;font-size:12px;color:var(--border);line-height:1.5}
+.ph-text span{font-size:10px}
 
-/* Vibe grid */
-.vibe-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:20px 0}
-.vibe-card{border:1px solid var(--border);border-radius:6px;padding:20px}
-.vibe-card h4{font-family:'Noto Serif SC',serif;font-size:15px;font-weight:600;margin-bottom:10px}
+/* Vibe */
+.vibe-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+.vibe-card{border:1px solid var(--border);border-radius:6px;padding:18px}
+.vibe-card h4{font-family:'Noto Serif SC',serif;font-size:15px;font-weight:600;margin-bottom:8px}
 .vibe-card.human{border-color:var(--green)}.vibe-card.human h4{color:var(--green)}
 .vibe-card.ai{border-color:var(--purple)}.vibe-card.ai h4{color:var(--purple)}
 .vibe-card ul{list-style:none;padding:0}
-.vibe-card li{font-size:13.5px;color:var(--muted);padding:3px 0 3px 14px;position:relative}
-.vibe-card li::before{content:'';position:absolute;left:0;top:11px;width:5px;height:5px;border-radius:50%}
+.vibe-card li{font-size:13px;color:var(--muted);padding:2px 0 2px 14px;position:relative}
+.vibe-card li::before{content:'';position:absolute;left:0;top:10px;width:5px;height:5px;border-radius:50%}
 .vibe-card.human li::before{background:var(--green)}
 .vibe-card.ai li::before{background:var(--purple)}
 
 /* Metrics */
-.metric-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:20px 0}
-.metric{text-align:center;padding:20px 12px;border:1px solid var(--border);border-radius:6px}
-.metric .num{font-family:'JetBrains Mono',monospace;font-size:30px;font-weight:700;color:var(--accent)}
-.metric .unit{font-size:13px;color:var(--muted);margin-top:4px}
+.metric-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:16px 0}
+.metric{text-align:center;padding:16px 10px;border:1px solid var(--border);border-radius:6px}
+.metric .num{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;color:var(--accent)}
+.metric .unit{font-size:12px;color:var(--muted);margin-top:2px}
 
-/* Tech table */
-table{width:100%;border-collapse:collapse;margin:20px 0;font-size:13.5px}
-th{background:var(--ink);color:#fff;padding:10px 14px;text-align:left;font-weight:500}
-td{padding:10px 14px;border-bottom:1px solid var(--border)}
-tr:hover td{background:rgba(0,0,0,.02)}
+/* Tech inline */
+.tech-line{font-size:13px;color:var(--muted);margin:12px 0;line-height:2}
+.tech-line code{font-family:'JetBrains Mono',monospace;font-size:12px;background:#f0efec;padding:2px 6px;border-radius:3px;color:var(--ink)}
 
 /* Footer */
-.footer{padding:32px 52px;text-align:center;font-size:13px;color:var(--muted);border-top:1px solid var(--border)}
-.footer a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent-light)}
+.footer{padding:20px 56px;text-align:center;font-size:12px;color:var(--border)}
 
-@media(max-width:640px){
-  .header,.content,.footer{padding-left:24px;padding-right:24px}
-  .header h1{font-size:24px}
-  .pain-grid,.output-grid,.vibe-grid,.metric-row{grid-template-columns:1fr}
+@media(max-width:700px){
+  .header,.content{padding-left:24px;padding-right:24px}
+  .header h1{font-size:26px}
+  .pain-grid,.vibe-grid,.metric-row{grid-template-columns:1fr}
+  .screenshot-row{grid-template-columns:1fr}
   .evidence-grid{grid-template-columns:repeat(3,1fr)}
   .flow{flex-direction:column}
   .flow-arrow{transform:rotate(90deg);padding:4px 0}
+  .header-meta{flex-direction:column;gap:4px}
 }
 </style>
 </head>
@@ -124,13 +128,19 @@ tr:hover td{background:rgba(0,0,0,.02)}
 
 <!-- Header -->
 <div class="header">
-  <div class="header-meta">CLAUDE CODE SKILL</div>
+  <div class="header-badge">CLAUDE CODE SKILL</div>
   <h1>签证行程单生成器</h1>
-  <div class="header-sub">输入一句话，输出签证官认可的行程表 PDF + 真实预订链接。零幻觉，全真实航班酒店数据。</div>
-  <div class="header-links">
-    <a href="https://visa-web-production.up.railway.app" target="_blank" class="primary">在线体验</a>
-    <a href="https://clawhub.ai/zephryve/visa-itinerary-gen" target="_blank">ClawHub</a>
-    <a href="https://github.com/zephryve/visa-itinerary-gen" target="_blank">GitHub</a>
+  <p class="tagline">输入一句话，输出签证官认可的行程表 PDF + 真实预订链接</p>
+  <div class="header-meta">
+    <a href="https://visa-web-production.up.railway.app" target="_blank" class="meta-link">在线体验 &rarr;</a>
+    <span class="meta-sep">&middot;</span>
+    <a href="https://clawhub.ai/zephryve/visa-itinerary-gen" target="_blank" class="meta-link">ClawHub &rarr;</a>
+    <span class="meta-sep">&middot;</span>
+    <span class="name">西风</span>
+    <span class="meta-sep">&middot;</span>
+    <span class="meta-copy" onclick="navigator.clipboard.writeText('zephryve');var t=this.querySelector('.text'),d=this.querySelector('.done');t.style.opacity=0;d.style.opacity=1;setTimeout(()=>{t.style.opacity=1;d.style.opacity=0},1500)"><span class="text">微信号 zephryve</span><span class="done">已复制</span></span>
+    <span class="meta-sep">&middot;</span>
+    <span class="meta-copy" onclick="navigator.clipboard.writeText('zephryve@gmail.com');var t=this.querySelector('.text'),d=this.querySelector('.done');t.style.opacity=0;d.style.opacity=1;setTimeout(()=>{t.style.opacity=1;d.style.opacity=0},1500)"><span class="text">zephryve@gmail.com</span><span class="done">已复制</span></span>
   </div>
 </div>
 
@@ -139,8 +149,8 @@ tr:hover td{background:rgba(0,0,0,.02)}
 <!-- Problem + Value -->
 <section>
   <div class="section-num">第一章</div>
-  <h2>一份行程单值多少钱？30-110 元。这个 Skill 让它免费。</h2>
-  <p>申根、美国、日本、英国、澳大利亚签证都要求提交行程计划书。这是所有签证材料中唯一需要申请人自己查航班、查酒店、排日程、按领馆格式排版的文档——也是最耗时的一步。</p>
+  <h2>一份行程单值 ¥30-110，这个 Skill 让它免费</h2>
+  <p>申根、美国、日本、英国、澳大利亚签证都要求提交行程计划书。申请人需要自己查航班、查酒店、排日程、按领馆格式排版——这是所有签证材料中最耗时的一步。</p>
 
   <div class="pain-grid">
     <div class="pain-card">
@@ -155,46 +165,20 @@ tr:hover td{background:rgba(0,0,0,.02)}
     </div>
   </div>
 
-  <h3>付费需求真实存在</h3>
-  <p>以下为主流平台截图佐证：</p>
+  <h3>截图佐证</h3>
   <div class="evidence-grid">
-    <div>
-      <img src="https://zephryve.github.io/visa-itinerary-gen/evidence_1.jpg" alt="某OTA">
-      <div class="cap">某OTA · 代做省¥110</div>
-    </div>
-    <div>
-      <img src="https://zephryve.github.io/visa-itinerary-gen/evidence_2.jpg" alt="社交平台">
-      <div class="cap">社交平台 · 已售300+</div>
-    </div>
-    <div>
-      <img src="https://zephryve.github.io/visa-itinerary-gen/evidence_3.jpg" alt="二手平台">
-      <div class="cap">二手平台 · ¥50</div>
-    </div>
-    <div>
-      <img src="https://zephryve.github.io/visa-itinerary-gen/evidence_4.jpg" alt="二手平台">
-      <div class="cap">二手平台 · ¥30起</div>
-    </div>
-    <div>
-      <img src="https://zephryve.github.io/visa-itinerary-gen/evidence_5.jpg" alt="二手平台">
-      <div class="cap">二手平台 · ¥100</div>
-    </div>
+    <div><img src="https://zephryve.github.io/visa-itinerary-gen/evidence_1_marked.jpg" alt="某OTA"><div class="cap">某OTA · 代做省¥110</div></div>
+    <div><img src="https://zephryve.github.io/visa-itinerary-gen/evidence_2_marked.jpg" alt="社交平台"><div class="cap">社交平台 · 已售300+</div></div>
+    <div><img src="https://zephryve.github.io/visa-itinerary-gen/evidence_3_marked.jpg" alt="二手平台"><div class="cap">二手平台 · ¥50</div></div>
+    <div><img src="https://zephryve.github.io/visa-itinerary-gen/evidence_4_marked.jpg" alt="二手平台"><div class="cap">二手平台 · ¥30起</div></div>
+    <div><img src="https://zephryve.github.io/visa-itinerary-gen/evidence_5_marked.jpg" alt="二手平台"><div class="cap">二手平台 · ¥100</div></div>
   </div>
 
-  <div class="value-box">
-    <strong>结论：一份行程单的市场价值在 ¥30-110 之间。</strong>付费需求真实存在，本 Skill 将其免费化。
-  </div>
-
-  <h3>用户三重价值</h3>
-  <p><strong>省钱</strong>：免费替代 ¥30-110 的付费服务。<strong>省时</strong>：3-5h → 几分钟。<strong>提高通过率</strong>：真实数据比随便写更可信。</p>
+  <div class="value-box"><strong>省钱</strong>：免费替代 ¥30-110 的付费服务。<strong>省时</strong>：3-5h → 几分钟。<strong>提高通过率</strong>：真实数据比随便写更可信。</div>
 
   <div class="quote-block">
     "可能还是因为我行程做的不够用心吧，没有具体游玩的项目"——结果只拿到了1个月签证
     <div class="quote-source">来源：<a href="https://www.xiaohongshu.com/mobile/question/667696" target="_blank">小红书 · 爱丁堡法签</a></div>
-  </div>
-
-  <div class="quote-block">
-    "行程单应反映申请人的实际出行计划——不应该是旅行社出具的模板行程单。使馆可能会致电问询行程细节。"
-    <div class="quote-source">来源：<a href="https://www.vfsglobal.com/one-pager/denmark/china/chinese/pdf/Individual-Tourism-Application.pdf" target="_blank">VFS Global · 丹麦签证材料指南</a></div>
   </div>
 </section>
 
@@ -204,20 +188,14 @@ tr:hover td{background:rgba(0,0,0,.02)}
   <h2>一句话输入，两个产物输出</h2>
 
   <div class="terminal">
-    <div class="terminal-bar">
-      <div class="dot r"></div>
-      <div class="dot y"></div>
-      <div class="dot g"></div>
-      <div class="terminal-title">Terminal — visa-itinerary-gen</div>
-    </div>
+    <div class="terminal-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><div class="terminal-title">visa-itinerary-gen v1.7.2</div></div>
     <div class="terminal-body">
       <span class="prompt">$</span> <span class="cmd">claude "帮我做一份签证行程单，4人4月底从杭州去意大利法国，5月4号回"</span><br><br>
       <span class="hl">  Skill activated:</span> visa-itinerary-gen v1.7.2<br>
       <span>  Searching flights: HGH → FCO, MXP → HGH ...</span><br>
       <span>  Searching hotels: Rome 2n, Florence 1n, Paris 2n ...</span><br>
       <span>  Searching attractions: Colosseum, Uffizi, Eiffel Tower ...</span><br>
-      <span>  Rendering PDF: Travel_Plan_Italy_France.pdf</span><br>
-      <span>  Rendering HTML: Booking_Links_CN.html, Booking_Links_EN.html</span><br><br>
+      <span>  Rendering PDF + Booking Links ...</span><br><br>
       <span class="ok">  Done. 3 files generated.</span>
     </div>
   </div>
@@ -227,31 +205,38 @@ tr:hover td{background:rgba(0,0,0,.02)}
     <div class="flow-arrow">&rarr;</div>
     <div class="flow-step"><div class="ft">Agent 搜索</div><div class="fd">真实航班、酒店、景点</div></div>
     <div class="flow-arrow">&rarr;</div>
-    <div class="flow-step"><div class="ft">智能排程</div><div class="fd">按地理动线编排日程</div></div>
+    <div class="flow-step"><div class="ft">智能排程</div><div class="fd">按地理动线编排</div></div>
     <div class="flow-arrow">&rarr;</div>
-    <div class="flow-step"><div class="ft">输出产物</div><div class="fd">PDF + 预订链接</div></div>
+    <div class="flow-step"><div class="ft">输出</div><div class="fd">PDF + 预订链接</div></div>
   </div>
 
-  <div class="callout">
-    <strong>零幻觉保证：</strong>所有航班号、酒店名、价格、景点信息均来自实时搜索 API，不是大模型编造。行程表按领馆要求的日期-城市-交通-住宿-活动格式排版。
-  </div>
+  <div class="callout"><strong>零幻觉：</strong>所有航班号、酒店名、价格均来自实时搜索 API，不是大模型编造。行程表按领馆格式排版。</div>
 </section>
 
 <!-- Output -->
 <section>
   <div class="section-num">第三章</div>
-  <h2>真实产出：意大利 + 法国 5 日行程</h2>
-  <p>以下是 Skill 实际生成的文件。航班、酒店、景点数据全部来自真实搜索结果。</p>
+  <h2>一个 Skill，两种使用方式</h2>
 
-  <div class="output-grid">
-    <div class="output-card">
-      <div class="card-label">行程表 PDF（领馆格式 · 纯英文）</div>
-      <img src="https://zephryve.github.io/visa-itinerary-gen/demo_travel_plan.png" alt="Travel Plan PDF">
-    </div>
-    <div class="output-card">
-      <div class="card-label">预订链接（中文版 · 一键复制）</div>
-      <img src="https://zephryve.github.io/visa-itinerary-gen/booking_links_cn.png" alt="Booking Links">
-    </div>
+  <h3>Skill 形态（终端）</h3>
+  <div class="screenshot-row">
+    <div class="screenshot-card placeholder"><div class="ph-text">截图待补<br><span>终端输入命令</span></div></div>
+    <div class="screenshot-card placeholder"><div class="ph-text">截图待补<br><span>Agent 搜索中</span></div></div>
+    <div class="screenshot-card placeholder"><div class="ph-text">截图待补<br><span>生成完成</span></div></div>
+  </div>
+
+  <h3>Web 形态（浏览器）</h3>
+  <div class="screenshot-row">
+    <div class="screenshot-card placeholder"><div class="ph-text">截图待补<br><span>首页表单</span></div></div>
+    <div class="screenshot-card placeholder"><div class="ph-text">截图待补<br><span>等待页</span></div></div>
+    <div class="screenshot-card placeholder"><div class="ph-text">截图待补<br><span>结果页</span></div></div>
+  </div>
+
+  <h3>输出产物</h3>
+  <div class="screenshot-row">
+    <div class="screenshot-card"><img src="https://zephryve.github.io/visa-itinerary-gen/demo_travel_plan.png" alt="PDF"><div class="screenshot-cap">行程表 PDF（领馆格式）</div></div>
+    <div class="screenshot-card"><img src="https://zephryve.github.io/visa-itinerary-gen/booking_links_cn.png" alt="CN"><div class="screenshot-cap">预订链接（中文版）</div></div>
+    <div class="screenshot-card"><img src="https://zephryve.github.io/visa-itinerary-gen/booking_links_en.png" alt="EN"><div class="screenshot-cap">预订链接（英文版）</div></div>
   </div>
 </section>
 
@@ -259,71 +244,40 @@ tr:hover td{background:rgba(0,0,0,.02)}
 <section>
   <div class="section-num">第四章</div>
   <h2>一个人 + Claude Code，三天上线</h2>
-  <p>从 Skill 开发到 Web 部署，全程 Vibe Coding。人定产品和架构决策，AI 写所有代码。</p>
 
   <div class="vibe-grid">
     <div class="vibe-card human">
       <h4>人做什么</h4>
       <ul>
         <li>定义产品形态和用户体验</li>
-        <li>架构决策：Skill 单元、Agent 编排、异步服务</li>
-        <li>审 Review 报告，把关关键节点</li>
-        <li>定文案、交互、优先级</li>
+        <li>架构决策和关键节点把关</li>
+        <li>审 Review 报告，定优先级</li>
       </ul>
     </div>
     <div class="vibe-card ai">
       <h4>Claude Code 做什么</h4>
       <ul>
         <li>写所有代码（前端 + 后端 + Dockerfile）</li>
-        <li>技术选型调研和对比</li>
-        <li>3 批 x 3 个 Agent 并行代码审查</li>
+        <li>3 批 x 3 个 Agent 并行审查</li>
         <li>调试、修 bug、写文档</li>
       </ul>
     </div>
   </div>
 
   <div class="metric-row">
-    <div class="metric">
-      <div class="num">3</div>
-      <div class="unit">天，从零到上线</div>
-    </div>
-    <div class="metric">
-      <div class="num">18</div>
-      <div class="unit">Git Commits</div>
-    </div>
-    <div class="metric">
-      <div class="num">5</div>
-      <div class="unit">份 AI Review 报告</div>
-    </div>
+    <div class="metric"><div class="num">3</div><div class="unit">天，从零到上线</div></div>
+    <div class="metric"><div class="num">18</div><div class="unit">Git Commits</div></div>
+    <div class="metric"><div class="num">5</div><div class="unit">份 AI Review 报告</div></div>
   </div>
 
-  <div class="callout">
-    <strong>核心经验：</strong>人定框架和关键节点，AI 负责具体实现。不需要会写 TypeScript / Next.js，但需要知道"等待页太无聊""7 分钟任务 Serverless 扛不住"——这些产品判断只有人能给。
+  <div class="tech-line">
+    <code>Claude Code</code> + <code>Agent SDK</code> 编排 Skill &rarr; <code>Playwright</code> 渲染 PDF &rarr; <code>Next.js</code> + <code>Railway</code> 容器化部署
   </div>
-</section>
-
-<!-- Tech -->
-<section>
-  <div class="section-num">第五章</div>
-  <h2>技术栈</h2>
-
-  <table>
-    <tr><th>层</th><th>技术</th><th>说明</th></tr>
-    <tr><td>Skill Runtime</td><td>Claude Code + Agent SDK</td><td>SKILL.md 定义执行流程，Agent 自主编排</td></tr>
-    <tr><td>Data Source</td><td>Real-time Search API</td><td>真实航班、酒店、景点数据，非缓存非编造</td></tr>
-    <tr><td>PDF Render</td><td>Playwright + Chromium</td><td>HTML 模板渲染为 A4 领馆格式 PDF</td></tr>
-    <tr><td>Web</td><td>Next.js + Railway</td><td>Docker 容器化，异步任务队列，前端轮询</td></tr>
-    <tr><td>Distribution</td><td>ClawHub + GitHub</td><td>Skill 分发 + 源码开放</td></tr>
-  </table>
 </section>
 
 </div>
 
-<!-- Footer -->
-<div class="footer">
-  visa-itinerary-gen &middot; Built with Claude Code by <a href="https://github.com/zephryve">Zephryve</a>
-</div>
-
+<div class="footer">visa-itinerary-gen &middot; Built with Claude Code by Zephryve</div>
 </div>
 </body>
 </html>

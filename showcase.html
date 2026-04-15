@@ -21,6 +21,7 @@ body{background:var(--bg);color:var(--ink);font-family:'Noto Sans SC',system-ui,
 .header-meta{font-size:14px;color:var(--muted);display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:0}
 .header-meta .name{color:var(--ink);font-weight:500;font-size:16px}
 .meta-sep{padding:0 10px;color:var(--border)}
+.meta-div{width:1px;height:14px;background:var(--border);margin:0 14px}
 .meta-link{color:var(--muted);text-decoration:none;border-bottom:1px solid var(--border);transition:color .15s,border-color .15s}
 .meta-link:hover{color:var(--accent);border-bottom-color:var(--accent)}
 .meta-copy{cursor:pointer;position:relative;display:inline-block;border-bottom:1px solid var(--border);transition:color .15s,border-color .15s}
@@ -132,12 +133,12 @@ p{margin-bottom:12px}
   <h1>签证行程单生成器</h1>
   <p class="tagline">输入一句话，输出签证官认可的行程表 PDF + 真实预订链接</p>
   <div class="header-meta">
-    <a href="https://visa-web-production.up.railway.app" target="_blank" class="meta-link">在线体验 &rarr;</a>
-    <span class="meta-sep">&middot;</span>
-    <a href="https://clawhub.ai/zephryve/visa-itinerary-gen" target="_blank" class="meta-link">ClawHub &rarr;</a>
-    <span class="meta-sep">&middot;</span>
     <span class="name">西风</span>
     <span class="meta-sep">&middot;</span>
+    <a href="https://clawhub.ai/zephryve/visa-itinerary-gen" target="_blank" class="meta-link">Skill 下载 &rarr;</a>
+    <span class="meta-sep">&middot;</span>
+    <a href="https://visa-web-production.up.railway.app" target="_blank" class="meta-link">在线体验 &rarr;</a>
+    <span class="meta-div"></span>
     <span class="meta-copy" onclick="navigator.clipboard.writeText('zephryve');var t=this.querySelector('.text'),d=this.querySelector('.done');t.style.opacity=0;d.style.opacity=1;setTimeout(()=>{t.style.opacity=1;d.style.opacity=0},1500)"><span class="text">微信号 zephryve</span><span class="done">已复制</span></span>
     <span class="meta-sep">&middot;</span>
     <span class="meta-copy" onclick="navigator.clipboard.writeText('zephryve@gmail.com');var t=this.querySelector('.text'),d=this.querySelector('.done');t.style.opacity=0;d.style.opacity=1;setTimeout(()=>{t.style.opacity=1;d.style.opacity=0},1500)"><span class="text">zephryve@gmail.com</span><span class="done">已复制</span></span>

@@ -3,7 +3,7 @@ name: visa-itinerary-gen
 description: 一键生成领馆级签证行程计划书 — Generate consulate-grade visa itinerary from natural language. Real flyai data, zero hallucination. PDF + booking links with Fliggy.
 homepage: https://github.com/zephryve/visa-itinerary-gen
 metadata:
-  version: 1.6.0
+  version: 1.7.4
   agent:
     type: tool
     runtime: node

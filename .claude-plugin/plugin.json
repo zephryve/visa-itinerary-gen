@@ -1,7 +1,7 @@
 {
   "name": "visa-itinerary-gen",
   "description": "Generate consulate-grade visa itinerary in 30 seconds. Real data from Fliggy, zero hallucination.",
-  "version": "1.2.0",
+  "version": "1.7.4",
   "author": {
     "name": "zephryve",
     "url": "https://github.com/zephryve"
